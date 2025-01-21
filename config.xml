@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Configuration>
+  <ReportFilePath>report.md</ReportFilePath>
+  <HistoryFilePath>history.md</HistoryFilePath>
+  <PicFilePath>.\pic</PicFilePath>
+  <HistoryXmlPath>history.xml</HistoryXmlPath>
+  <Games>
+    <Game>
+      <GameName>StarRail</GameName>
+      <GameTrans>崩坏：星穹铁道</GameTrans>
+    </Game>
+    <Game>
+      <GameName>dontstarve_steam_x64</GameName>
+      <GameTrans>饥荒联机版</GameTrans>
+    </Game>
+  </Games>
+</Configuration>
