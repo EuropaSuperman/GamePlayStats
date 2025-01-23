@@ -62,28 +62,79 @@ namespace GameDec
         }
 
         //在游戏进程exit后调用,生成历史数据md文档，并序列化到Xml文件。
-        public static void GenerateHistory(GamePlayData gamePlayData)
+        public static void GenerateMDFile(GamePlayData gamePlayData)
         {
+            //生成history.md
             DeserializeHistoryXmlFile();
             HistoryGamePlayData.Add(gamePlayData);
             SerializeHistoryXmlFile();
             StringBuilder sb = new StringBuilder();
-            sb.AppendLine("# 游戏数据统计\n");
-            sb.AppendLine("## 游戏历史数据\n");
+            sb.AppendLine("# 游戏历史数据\n");
             sb.AppendLine("| 游戏名 | 游戏时长 | 开始时间 | 结束时间 |");
             sb.AppendLine("| ------ | ------ | ------ | ------ |");
+
+            TimeSpan totalPlayTime = new TimeSpan(0, 0, 0, 0);
+            TimeSpan meanPlayTime = new TimeSpan(0, 0, 0, 0);
             foreach (var game in HistoryGamePlayData)
             {
-                sb.AppendLine($"| {game.GameName} | {game.GetPlayTime()} | {game.StartTime} | {game.EndTime} |");
+                sb.AppendLine($"| {game.GameTrans} | {game.GetPlayTime()} | {game.StartTime} | {game.EndTime} |");
+                totalPlayTime += game.GetPlayTimeSpan();
             }
-            
-           
+            TimeSpan AverageDailyPlayTime = Utilitiy.GetAverageDailyPlayTime(HistoryGamePlayData);
+            sb.AppendLine($"\n您的总游戏时长：**{Utilitiy.TimeSpanString(totalPlayTime)}**\n");
+            sb.AppendLine($"您的每日平均游戏时长：**{Utilitiy.TimeSpanString(AverageDailyPlayTime)}**\n");
+            foreach(var game in Program.Games)
+            {
+                TimeSpan AverageDailyPlayTimeByName = Utilitiy.GetAverageDailyPlayTimeByName(HistoryGamePlayData, game.GameName);
+                if(AverageDailyPlayTimeByName != TimeSpan.Zero)
+                {
+                    sb.AppendLine($"您游玩**{game.GameTrans}**的历史每日平均游戏时长：**{Utilitiy.TimeSpanString(AverageDailyPlayTimeByName)}**\n");
+                }
+            }
             if (!File.Exists(HistoryFilePath))
             {
                 File.Create(HistoryFilePath);
                 Thread.Sleep(1000);
             }
             File.WriteAllText(HistoryFilePath, sb.ToString());
+
+            GenerateReport();
+        }
+
+        //生成report.md
+        private static void GenerateReport()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("# 今日游戏数据统计\n");
+            sb.AppendLine($"**今天是{DateTime.Today}**\n");
+            List<GamePlayData> todayGamePlayData = new List<GamePlayData>();
+            foreach (var game in HistoryGamePlayData)
+            {
+                if (game.GameName == "Undefined")
+                {
+                    Console.WriteLine("出现了不合法的GamePlayData");
+                    continue;
+                }
+                if (game.StartTime.Date == DateTime.Today)
+                {
+                    todayGamePlayData.Add(game);
+                }
+            }
+            foreach (var game in todayGamePlayData)
+            {
+                sb.AppendLine($"- 游戏名：{game.GameTrans}\n");
+                sb.AppendLine($"  - 游戏时长：{game.GetPlayTime()}\n");
+                sb.AppendLine($"  - 开始时间：{game.StartTime}\n");
+                sb.AppendLine($"  - 结束时间：{game.EndTime}\n");
+            }
+            TimeSpan AverageDailyPlayTime = Utilitiy.GetAverageDailyPlayTime(todayGamePlayData);
+            sb.AppendLine($"今日游戏总时长：{Utilitiy.TimeSpanString(AverageDailyPlayTime)}\n");
+            if (!File.Exists(ReportFilePath))
+            {
+                File.Create(ReportFilePath);
+                Thread.Sleep(1000);
+            }
+            File.WriteAllText(ReportFilePath, sb.ToString());
         }
     }
 }

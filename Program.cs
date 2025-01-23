@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Security.Policy;
 using System.Text;
 using System.Threading;
 using System.Xml;
@@ -13,28 +14,15 @@ namespace GameDec
         public DateTime StartTime = DateTime.MinValue;
         public DateTime EndTime = DateTime.MinValue;
         public string GameTrans;
+        public TimeSpan GetPlayTimeSpan()
+        {
+            return EndTime - StartTime;
+        }
         public string GetPlayTime()
         {
-            TimeSpan PlayTime = EndTime - StartTime;
-            StringBuilder Time = new StringBuilder();
-            if (PlayTime.Days > 0)
-            {
-                Time.Append(PlayTime.Days + "天");
-            }
-            if (PlayTime.Hours > 0)
-            {
-                Time.Append(PlayTime.Hours + "小时");
-            }
-            if (PlayTime.Minutes > 0)
-            {
-                Time.Append(PlayTime.Minutes + "分钟");
-            }
-            if (PlayTime.Seconds > 0)
-            {
-                Time.Append(PlayTime.Seconds + "秒");
-            }
-            return Time.ToString();
+            return Utilitiy.TimeSpanString(EndTime - StartTime);
         }
+        
         public GamePlayData(string gameName, string gameTrans)
         {
             GameName = gameName;
@@ -45,7 +33,10 @@ namespace GameDec
             GameName = "Undefined";
             GameTrans = "未知";
         }
+
     }
+
+
     public class Program
     {
         // 存储已注册进程的字典，避免重复注册 Exited 事件
@@ -94,12 +85,35 @@ namespace GameDec
             {
                 Console.WriteLine($"Process {process.ProcessName} has exited.");
                 ProcessGameData[process.Id].EndTime = DateTime.Now;
-                MarkDownGen.GenerateHistory(ProcessGameData[process.Id]);
+                MarkDownGen.GenerateMDFile(ProcessGameData[process.Id]);
                 // 使用 Toast 通知
+
                 new ToastContentBuilder()
                     .AddText(ProcessGameData[process.Id].GameTrans)
                     .AddText("游戏已退出。您这次游玩了" + ProcessGameData[process.Id].GetPlayTime())
+                    .AddButton(new ToastButton()
+                        .SetContent("查看历史记录")
+                        .AddArgument("action", "viewHistory")
+                        .SetBackgroundActivation())
                     .Show();
+
+                ToastNotificationManagerCompat.OnActivated += toastArgs =>
+                {
+                    if (toastArgs.Argument == "action=viewHistory")
+                    {
+                        string historyFilePath = MarkDownGen.HistoryFilePath;
+                        string reportFilePath = MarkDownGen.ReportFilePath;
+                        if (System.IO.File.Exists(historyFilePath) && System.IO.File.Exists(reportFilePath))
+                        {
+                            Process.Start(historyFilePath);
+                            Process.Start(reportFilePath);
+                        }
+                        else
+                        {
+                            Console.WriteLine("历史文件md或者记录文件md不存在");
+                        }
+                    }
+                };
             }
         }
 
