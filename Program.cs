@@ -44,6 +44,27 @@ namespace GameDec
         public static List<GamePlayData> Games = new List<GamePlayData>();
         static void Main(string[] args)
         {
+            ToastNotificationManagerCompat.OnActivated += toastArgs =>
+            {
+                if (toastArgs.Argument == "action=viewHistory")
+                {
+                    string historyFilePath = MarkDownGen.HistoryFilePath;
+                    string reportFilePath = MarkDownGen.ReportFilePath;
+                    if (System.IO.File.Exists(historyFilePath) && System.IO.File.Exists(reportFilePath))
+                    {
+
+                        Process.Start(historyFilePath);
+                        Console.WriteLine($"打开{historyFilePath}");
+                        Process.Start(reportFilePath);
+                        Console.WriteLine($"打开{reportFilePath}");
+
+                    }
+                    else
+                    {
+                        Console.WriteLine("历史文件md或者记录文件md不存在");
+                    }
+                }
+            };
             string configFilePath = "config.xml";
             ReadConfig(configFilePath);
             while (true)
@@ -92,29 +113,11 @@ namespace GameDec
                     .AddText(ProcessGameData[process.Id].GameTrans)
                     .AddText("游戏已退出。您这次游玩了" + ProcessGameData[process.Id].GetPlayTime())
                     .AddButton(new ToastButton()
-                        .SetContent("查看历史记录")
+                        .SetContent("查看记录")
                         .AddArgument("action", "viewHistory")
                         .SetBackgroundActivation())
                     .Show();
 
-                ToastNotificationManagerCompat.OnActivated += toastArgs =>
-                {
-                    if (toastArgs.Argument == "action=viewHistory")
-                    {
-                        string historyFilePath = MarkDownGen.HistoryFilePath;
-                        string reportFilePath = MarkDownGen.ReportFilePath;
-                        if (System.IO.File.Exists(historyFilePath) && System.IO.File.Exists(reportFilePath))
-                        {
-                            
-                            Process.Start(historyFilePath);
-                            Process.Start(reportFilePath);
-                        }
-                        else
-                        {
-                            Console.WriteLine("历史文件md或者记录文件md不存在");
-                        }
-                    }
-                };
             }
         }
 

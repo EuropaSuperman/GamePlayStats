@@ -2,7 +2,6 @@
 <Configuration>
   <ReportFilePath>report.md</ReportFilePath>
   <HistoryFilePath>history.md</HistoryFilePath>
-  <PicFilePath>.\pic</PicFilePath>
   <HistoryXmlPath>history.xml</HistoryXmlPath>
   <Games>
     <Game>
