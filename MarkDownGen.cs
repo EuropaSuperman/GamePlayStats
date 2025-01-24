@@ -106,8 +106,10 @@ namespace GameDec
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("# 今日游戏数据统计\n");
-            sb.AppendLine($"**今天是{DateTime.Today}**\n");
+            DateTime today = DateTime.Today;
+            sb.AppendLine($"**今天是{today.Month}月{today.Day}日  {today.DayOfWeek}**\n");
             List<GamePlayData> todayGamePlayData = new List<GamePlayData>();
+            TimeSpan todayGamePlayTime = TimeSpan.Zero;
             foreach (var game in HistoryGamePlayData)
             {
                 if (game.GameName == "Undefined")
@@ -118,21 +120,39 @@ namespace GameDec
                 if (game.StartTime.Date == DateTime.Today)
                 {
                     todayGamePlayData.Add(game);
+                    todayGamePlayTime += game.GetPlayTimeSpan();
                 }
             }
+            sb.AppendLine($"今日游戏总时长：**{Utilitiy.TimeSpanString(todayGamePlayTime)}**\n");
+            sb.AppendLine("## 游玩记录\n");
+            Dictionary<string, TimeSpan> gamePlayTime = new Dictionary<string, TimeSpan>();
             foreach (var game in todayGamePlayData)
             {
+                if(!gamePlayTime.ContainsKey(game.GameTrans))
+                {
+                    gamePlayTime.Add(game.GameTrans, game.GetPlayTimeSpan());
+                }
+                else
+                {
+                    gamePlayTime[game.GameTrans] += game.GetPlayTimeSpan();
+                }
                 sb.AppendLine($"- 游戏名：{game.GameTrans}\n");
                 sb.AppendLine($"  - 游戏时长：{game.GetPlayTime()}\n");
                 sb.AppendLine($"  - 开始时间：{game.StartTime}\n");
                 sb.AppendLine($"  - 结束时间：{game.EndTime}\n");
+                sb.AppendLine($"  - 时间占比：{(game.GetPlayTimeSpan().Ticks / (double)todayGamePlayTime.Ticks * 100):F2}%\n");
             }
-            TimeSpan AverageDailyPlayTime = Utilitiy.GetAverageDailyPlayTime(todayGamePlayData);
-            sb.AppendLine($"今日游戏总时长：{Utilitiy.TimeSpanString(AverageDailyPlayTime)}\n");
+            sb.AppendLine("## 游戏时长统计\n");
+            foreach (KeyValuePair<string, TimeSpan> p in gamePlayTime)
+            {
+                sb.AppendLine($"**{p.Key}**的总游戏时间为**{Utilitiy.TimeSpanString(p.Value)}**，占今日游玩时间的{(p.Value.Ticks / (double)todayGamePlayTime.Ticks * 100):F2}%\n");
+            }
+
+
             if (!File.Exists(ReportFilePath))
             {
                 File.Create(ReportFilePath);
-                Thread.Sleep(1000);
+                Thread.Sleep(10);
             }
             File.WriteAllText(ReportFilePath, sb.ToString());
         }

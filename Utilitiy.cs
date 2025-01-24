@@ -22,10 +22,7 @@ namespace GameDec
             {
                 Time.Append(t.Minutes + "分钟");
             }
-            if (t.Seconds > 0)
-            {
-                Time.Append(t.Seconds + "秒");
-            }
+            Time.Append(t.Seconds + "秒");
             return Time.ToString();
         }
         /// <summary>
@@ -103,5 +100,7 @@ namespace GameDec
             List<GamePlayData> m_datas = datas.Where(data => data.GameName == name).ToList();
             return GetAverageLoginTime(m_datas);
         }
+
+        
     }
 }

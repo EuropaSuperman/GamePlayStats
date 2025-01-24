@@ -72,7 +72,7 @@ namespace GameDec
                     process.Exited += (sender, e) => OnProcessExited(sender,e);
                     game.StartTime = DateTime.Now;
                     Console.WriteLine($"{gameName} 正在运行.");
-                    
+
                 }
             }
         }
@@ -80,7 +80,7 @@ namespace GameDec
         // 进程退出时触发的事件
         static void OnProcessExited(object sender, EventArgs e)
         {
-            var process = sender as Process;
+            Process process = sender as Process;
             if (process != null)
             {
                 Console.WriteLine($"Process {process.ProcessName} has exited.");
@@ -105,6 +105,7 @@ namespace GameDec
                         string reportFilePath = MarkDownGen.ReportFilePath;
                         if (System.IO.File.Exists(historyFilePath) && System.IO.File.Exists(reportFilePath))
                         {
+                            
                             Process.Start(historyFilePath);
                             Process.Start(reportFilePath);
                         }
