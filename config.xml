@@ -3,6 +3,7 @@
   <ReportFilePath>report.md</ReportFilePath>
   <HistoryFilePath>history.md</HistoryFilePath>
   <HistoryXmlPath>history.xml</HistoryXmlPath>
+  <Server>http://yourserver:5000</Server>
   <Games>
     <Game>
       <GameName>StarRail</GameName>
