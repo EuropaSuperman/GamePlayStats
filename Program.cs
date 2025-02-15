@@ -106,6 +106,8 @@ namespace GameDec
             {
                 Console.WriteLine($"Process {process.ProcessName} has exited.");
                 ProcessGameData[process.Id].EndTime = DateTime.Now;
+
+                CloudXmlManager.SyncFromCloudAsync().Wait();
                 MarkDownGen.GenerateMDFile(ProcessGameData[process.Id]);
                 // 使用 Toast 通知
 
@@ -117,7 +119,7 @@ namespace GameDec
                         .AddArgument("action", "viewHistory")
                         .SetBackgroundActivation())
                     .Show();
-
+                CloudXmlManager.UploadToCloudAsync().Wait();
             }
         }
 
@@ -155,6 +157,13 @@ namespace GameDec
                         MarkDownGen.PicFilePath = reader.ReadElementContentAsString();
                         continue;
                     }
+
+                    if (reader.IsStartElement() && reader.Name == "Server")
+                    {
+                        CloudXmlManager.ServerUrl = reader.ReadElementContentAsString();
+                        continue;
+                    }
+
                     // 如果当前节点是 Game
                     if (reader.IsStartElement() && reader.Name == "Game")
                     {

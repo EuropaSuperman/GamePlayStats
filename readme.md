@@ -12,9 +12,11 @@
 
 - 可根据需要自行设置为开机自启
 
-配置文件介绍和开机自启设置方法，参考我的博客:
+- 如果你有一台自己的（云）服务器，可以利用它在不同的电脑端上进行历史文件的同步。
 
-[GamePlayStats | Europa Superman 's blog](https://europasuperman.github.io/EuropaSuperman.io/2025/01/24/GamePlayStats/)
+具体的部署方法，参考我的博客:
+
+[GamePlayStats | Europa Superman 's blog](https://www.europasuperman.site/2025/01/24/GamePlayStats/)
 
 ## 使用方式
 
@@ -29,5 +31,4 @@ Release下载：
 ```bash
 curl -L -o Release.rar https://github.com/EuropaSuperman/GamePlayStats/releases/download/v1.0.0/Release.rar
 ```
-
 
