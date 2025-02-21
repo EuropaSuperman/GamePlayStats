@@ -25,13 +25,13 @@ def upload_history():
     （安全由防火墙IP白名单保障）
     """
     if not request.content_type.startswith('application/xml'):
-        return {'error': 'Invalid content type'}, 400
+        return {'error': '请求头不是xml'}, 400
     
     xml_content = request.data
     
     # 格式验证（保持数据完整性检查）
     if not validate_xml_format(xml_content):
-        return {'error': 'Invalid XML format'}, 400
+        return {'error': 'xml格式错误'}, 400
     
     # 保存文件（直接覆盖）
     try:
@@ -58,7 +58,7 @@ def download_history():
 @app.route('/api/history/merge', methods=['POST'])
 def merge_history():
     if not request.content_type.startswith('application/xml'):
-        return {'error': 'Invalid content type'}, 400
+        return {'error': '请求头不是xml'}, 400
     
     # 加载云端数据
     server_root = ET.parse(SERVER_XML_PATH).getroot()

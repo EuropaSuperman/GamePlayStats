@@ -98,11 +98,11 @@ namespace GameDec
             }
             File.WriteAllText(HistoryFilePath, sb.ToString());
 
-            GenerateReport();
+            GenerateReport(HistoryGamePlayData);
         }
 
         //生成report.md
-        private static void GenerateReport()
+        private static void GenerateReport(List<GamePlayData> history)
         {
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("# 今日游戏数据统计\n");
@@ -110,7 +110,7 @@ namespace GameDec
             sb.AppendLine($"**今天是{today.Month}月{today.Day}日  {today.DayOfWeek}**\n");
             List<GamePlayData> todayGamePlayData = new List<GamePlayData>();
             TimeSpan todayGamePlayTime = TimeSpan.Zero;
-            foreach (var game in HistoryGamePlayData)
+            foreach (var game in history)
             {
                 if (game.GameName == "Undefined")
                 {

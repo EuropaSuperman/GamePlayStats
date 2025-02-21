@@ -37,12 +37,12 @@ namespace GameDec
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    throw new Exception($"Upload failed: {response.StatusCode}");
+                    throw new Exception($"上传失败: {response.StatusCode}");
                 }
             }
             catch (Exception ex)
             {
-                throw new Exception("Upload operation failed", ex);
+                throw new Exception("上传失败", ex);
             }
         }
 
@@ -71,9 +71,15 @@ namespace GameDec
 
                 // 创建合并字典（游戏名+开始时间作为唯一键）
                 var existingRecords = localRoot.Elements("GamePlayData")
-                    .ToDictionary(e =>
-                        $"{e.Element("GameName").Value}|{e.Element("StartTime").Value}");
+                    .ToDictionary(e => $"{e.Element("GameName").Value}|{e.Element("StartTime").Value}");
 
+                if (existingRecords.Count == 0)
+                {
+                    // 本地文件为空，直接覆盖
+                    localDoc = cloudDoc;
+                    localDoc.Save(MarkDownGen.HistoryXmlPath);
+                    return;
+                }
                 // 合并新记录
                 foreach (var cloudElem in cloudRoot.Elements("GamePlayData"))
                 {
@@ -85,6 +91,14 @@ namespace GameDec
                         existingRecords.Add(key, null);
                     }
                 }
+
+                // 按StartTime排序
+                var sortedElements = localRoot.Elements("GamePlayData")
+                    .OrderBy(e => DateTime.Parse(e.Element("StartTime").Value))
+                    .ToList();
+
+                localRoot.RemoveAll();
+                localRoot.Add(sortedElements);
 
                 // 保存合并结果
                 localDoc.Save(MarkDownGen.HistoryXmlPath);
