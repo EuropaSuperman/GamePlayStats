@@ -67,7 +67,6 @@ namespace GameDec
             List<GamePlayData> m_datas = datas.Where(data => data.GameName == name).ToList();
             return GetAverageDailyPlayTime(m_datas);
         }
-
         /// <summary>
         /// 平均登录时间
         /// </summary>
